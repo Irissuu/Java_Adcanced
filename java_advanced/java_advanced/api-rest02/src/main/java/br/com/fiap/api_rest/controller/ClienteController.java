@@ -6,9 +6,14 @@ import br.com.fiap.api_rest.model.Cliente;
 import br.com.fiap.api_rest.repository.ClienteRepository;
 import br.com.fiap.api_rest.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +37,9 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClienteResponse>> readClientes() {
-        List<Cliente> clientes = clienteRepository.findAll();
-
-        return new ResponseEntity<>(clienteService.clientesToResponse(clientes), HttpStatus.OK);
+    public ResponseEntity<Page<ClienteResponse>> readClientes(@RequestParam(required = true) int page) {
+        Pageable pageable = PageRequest.of(page, 2, Sort.by("categoria").ascending().and(Sort.by("nome").ascending()));
+        return new ResponseEntity<>(clienteService.findAll(pageable), HttpStatus.OK);
     }
 
     // PathVariable = parâmetro diretamente na URL, ex:/clientes/1
