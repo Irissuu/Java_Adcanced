@@ -9,3 +9,4 @@
 
 # Ignorar a pasta build gerada pelo Gradle
 /build/
+build/
