@@ -37,8 +37,11 @@ public class ClienteController {
 
     @Operation(summary = "Cria um novo cliente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Cliente cadastrado com sucesso", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Cliente.class))}),
-            @ApiResponse(responseCode = "400", description = "Atributos informados são inválidos", content = @Content(schema = @Schema()))
+            @ApiResponse(responseCode = "201", description = "Cliente cadastrado com sucesso",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Cliente.class))}),
+            @ApiResponse(responseCode = "400", description = "Atributos informados são inválidos",
+                    content = @Content(schema = @Schema()))
     })
     @PostMapping
     public ResponseEntity<Cliente> createCliente(@Valid @RequestBody ClienteRequest cliente) {
@@ -47,7 +50,6 @@ public class ClienteController {
     }
 
     @Operation(summary = "Retorna uma lista de clientes")
-
     @GetMapping
     public ResponseEntity<Page<ClienteResponse>> readClientes(@RequestParam(defaultValue = "0") Integer page) {
         Pageable pageable = PageRequest.of(page, 2, Sort.by("categoria").ascending().and(Sort.by("nome").ascending()));
@@ -58,8 +60,11 @@ public class ClienteController {
     // RequestParam = parâmetro como query, ex: /clientes/?id=1
     @Operation(summary = "Retorna um cliente por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Cliente.class))}),
-            @ApiResponse(responseCode = "404", description = "Nenhum cliente encontrado", content = @Content(schema = @Schema()))
+            @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ClienteResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Nenhum cliente encontrado",
+                    content = @Content(schema = @Schema()))
     })
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResponse> readCliente(@PathVariable Long id) {
@@ -72,7 +77,7 @@ public class ClienteController {
 
     @Operation(summary = "Atualiza um cliente existente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Cliente encontrado e atualizado",
+            @ApiResponse(responseCode = "201", description = "Cliente encontrado e atualizado com sucesso",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Cliente.class))}),
             @ApiResponse(responseCode = "400", description = "Nenhum cliente encontrado para atualizar",
@@ -92,11 +97,17 @@ public class ClienteController {
 
     @Operation(summary = "Exclui um cliente por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "400", description = "Nenhum cliente encontrado para excluir", content = @Content(schema = @Schema())),
-            @ApiResponse(responseCode = "204", description = "Cliente excluído com sucesso", content = @Content(schema = @Schema()))
+            @ApiResponse(responseCode = "400", description = "Nenhum cliente encontrado para excluir",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "204", description = "Cliente excluído com sucesso",
+                    content = @Content(schema = @Schema()))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCliente(@PathVariable Long id) {
+        Optional<Cliente> clienteExistente = clienteRepository.findById(id);
+        if (clienteExistente.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         clienteRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
